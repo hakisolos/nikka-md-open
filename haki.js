@@ -207,7 +207,7 @@ conn.ev.on("group-participants.update", async (data) => {
         events.commands.map(async (command) => {
           if (
   command.fromMe &&
-  !config.SUDO.includes(msg.sender?.split("@")[0] || !msg.isSelf)
+  !config.SUDO.includes(msg.sender?.split(",")[0] || !msg.isSelf)
 )
             return;
 
