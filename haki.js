@@ -184,7 +184,7 @@ conn.ev.on("group-participants.update", async (data) => {
         console.error("Error in group-participants.update handler:", error);
     }
 });
-*/
+*
       conn.ev.removeAllListeners("messages.upsert");
       conn.ev.on("messages.upsert", async (m) => {
         if (m.type !== "notify") return;
