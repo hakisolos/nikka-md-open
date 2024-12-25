@@ -1,3 +1,29 @@
+Skip to content
+Navigation Menu
+hakisolos
+nikka-md
+
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
+1
+Insights
+Settings
+Breadcrumbsnikka-md
+/haki.js
+Latest commit
+ 
+History
+257 lines (212 loc) · 7.91 KB
+File metadata and controls
+
+Code
+
+Blame
 
 
 const {
@@ -151,7 +177,7 @@ async function Abhiy() {
     try {
       conn.ev.on("creds.update", saveCreds);
 
-  /*    conn.ev.removeAllListeners("group-participants.update"); // Prevent duplicate listeners
+      conn.ev.removeAllListeners("group-participants.update"); // Prevent duplicate listeners
 conn.ev.on("group-participants.update", async (data) => {
     try {
         const metadata = await conn.groupMetadata(data.id); // Fetch group metadata
@@ -184,7 +210,7 @@ conn.ev.on("group-participants.update", async (data) => {
         console.error("Error in group-participants.update handler:", error);
     }
 });
-*
+
       conn.ev.removeAllListeners("messages.upsert");
       conn.ev.on("messages.upsert", async (m) => {
         if (m.type !== "notify") return;
@@ -253,212 +279,16 @@ setTimeout(() => {
 
 
 
-/*
-const {
-  default: makeWASocket,
-  useMultiFileAuthState,
-  Browsers,
-  makeInMemoryStore,
-} = require("@whiskeysockets/baileys");
-const fs = require("fs");
-const { serialize } = require("./lib/serialize");
-const { Message } = require("./lib/Base");
-const pino = require("pino");
-const path = require("path");
-const events = require("./lib/event");
-const got = require("got");
-const config = require("./config");
-const { PluginDB } = require("./lib/database/plugins");
-const Greetings = require("./lib/Greetings");
-const saveCreds = require("./lib/session");
 
-const store = makeInMemoryStore({
-  logger: pino().child({ level: "silent", stream: "store" }),
-});
-require("events").EventEmitter.defaultMaxListeners = 50;
-
-const { File } = require("megajs");
-
-(async function () {
-  const prefix = "Nikka-X";
-  const output = "./lib/session/";
-  const pth = `${output}creds.json`;
-
-  try {
-    if (!fs.existsSync(pth)) {
-      if (!config.SESSION_ID.startsWith(prefix)) {
-        throw new Error("Invalid session ID.");
-      }
-
-      const url = "https://mega.nz/file/" + config.SESSION_ID.replace(prefix, "");
-      const file = File.fromURL(url);
-      await file.loadAttributes();
-
-      if (!fs.existsSync(output)) {
-        fs.mkdirSync(output, { recursive: true });
-      }
-
-      const data = await file.downloadBuffer();
-      fs.writeFileSync(pth, data);
-    }
-  } catch (error) {
-    console.error(error);
-  }
-})();
-
-fs.readdirSync("./lib/database/").forEach((plugin) => {
-  if (path.extname(plugin).toLowerCase() === ".js") {
-    require("./lib/database/" + plugin);
-  }
-});
-
-async function Abhiy() {
-  console.log("Syncing Database");
-  await config.DATABASE.sync();
-
-  const { state, saveCreds } = await useMultiFileAuthState(
-    "./lib/session",
-    pino({ level: "silent" })
-  );
-
-  let conn = makeWASocket({
-    logger: pino({ level: "silent" }),
-    auth: state,
-    printQRInTerminal: true,
-    browser: Browsers.macOS("Desktop"),
-    downloadHistory: false,
-    syncFullHistory: false,
-  });
-
-  store.bind(conn.ev);
-
-  setInterval(() => {
-    store.writeToFile("./lib/store_db.json");
-    console.log("Saved store");
-  }, 30 * 60 * 1000);
-
-  conn.ev.on("connection.update", async (s) => {
-    const { connection, lastDisconnect } = s;
-
-    if (connection === "connecting") {
-      console.log("ɴɪᴋᴋᴀ");
-      console.log("ᴘʀᴏᴄᴇssɪɴɢ sᴇssɪᴏɴ ɪᴅ");
-    }
-
-    if (
-      connection === "close" &&
-      lastDisconnect &&
-      lastDisconnect.error &&
-      lastDisconnect.error.output.statusCode !== 401
-    ) {
-      if (conn?.state?.connection !== "open") {
-        console.log(lastDisconnect.error.output.payload);
-        Abhiy();
-      }
-    }
-
-    if (connection === "open") {
-      console.log("ʟᴏɢɪɴ sᴜᴄᴄᴇssғᴜʟ ✅");
-      console.log("ɪɴsᴛᴀʟʟɪɴɢ ᴘʟᴜɢɪɴs 📥");
-
-      const plugins = await PluginDB.findAll();
-      for (const plugin of plugins) {
-        if (!fs.existsSync("./plugins/" + plugin.dataValues.name + ".js")) {
-          console.log(plugin.dataValues.name);
-          const response = await got(plugin.dataValues.url);
-          if (response.statusCode === 200) {
-            fs.writeFileSync(
-              "./plugins/" + plugin.dataValues.name + ".js",
-              response.body
-            );
-            require("./plugins/" + plugin.dataValues.name + ".js");
-          }
-        }
-      }
-      console.log("ᴘʟᴜɢɪɴs ɪɴsᴛᴀʟʟᴇᴅ ✅");
-
-      fs.readdirSync("./plugins").forEach((plugin) => {
-        if (path.extname(plugin).toLowerCase() === ".js") {
-          require("./plugins/" + plugin);
-        }
-      });
-
-      console.log("ɴɪᴋᴋᴀ x ᴍᴅ ᴄᴏɴɴᴇᴄᴛᴇᴅ ✅");
-
-      const packageVersion = require("./package.json").version;
-      const totalPlugins = events.commands.length;
-      const workType = config.WORK_TYPE;
-      const statusMessage = `ɴɪᴋᴋᴀ x ᴍᴅ ᴄᴏɴɴᴇᴄᴛᴇᴅ ✅\nᴠᴇʀsɪᴏɴ: ${packageVersion}\nᴄᴍᴅs: ${totalPlugins}\nᴡᴏʀᴋᴛʏᴘᴇ: ${workType}\n𝗺𝗮𝗱𝗲 𝘄𝗶𝘁𝗵 ❤️ 𝗯𝘆 𝗵𝗮𝗸𝗶`;
-
-      await conn.sendMessage(conn.user.id, {
-        image: { url: "https://files.catbox.moe/mnp025.jpg" },
-        caption: `\`\`\`${statusMessage}\`\`\``,
-      });
-    }
-
-    try {
-      conn.ev.on("creds.update", saveCreds);
-
-      conn.ev.removeAllListeners("messages.upsert");
-      conn.ev.on("messages.upsert", async (m) => {
-        if (m.type !== "notify") return;
-        const ms = m.messages[0];
-        const msg = await serialize(JSON.parse(JSON.stringify(ms)), conn);
-
-        if (!msg.message) return;
-
-        const text_msg = msg.body;
-        if (text_msg && config.LOGS) {
-          console.log(
-            `At : ${
-              msg.from.endsWith("@g.us")
-                ? (await conn.groupMetadata(msg.from)).subject
-                : msg.from
-            }\nFrom : ${msg.sender}\nMessage:${text_msg}`
-          );
-        }
-
-       const sudoUser = config.SUDO ? config.SUDO.split(",").map(s => s.trim()) : [];
-        events.commands.map(async (command) => {
-          if (command.fromMe && (!sudoUser.includes(msg.sender?.split("@")[0]) && !msg.isSelf)) {
-            return;
-          }
-          let comman;
-          if (text_msg) {
-            comman = text_msg.trim().split(/ +/)[0];
-            msg.prefix = new RegExp(config.HANDLERS).test(text_msg)
-              ? text_msg.split("").shift()
-              : ",";
-          }
-
-          if (command.pattern && command.pattern.test(comman)) {
-            let match;
-            try {
-              match = text_msg.replace(new RegExp(comman, "i"), "").trim();
-            } catch {
-              match = false;
-            }
-
-            const whats = new Message(conn, msg, ms);
-            command.function(whats, match, msg, conn);
-          } else if (text_msg && command.on === "text") {
-            const whats = new Message(conn, msg, ms);
-            command.function(whats, text_msg, msg, conn, m);
-          }
-        });
-      });
-    } catch (e) {
-      console.log(e.stack + "\n\n\n\n\n" + JSON.stringify(msg));
-    }
-  });
-
-  process.on("uncaughtException", async (err) => {
-    console.error(err.message);
-    await conn.sendMessage(conn.user.id, { text: err.message });
-  });
-}
-
-setTimeout(() => {
-  Abhiy();
-}, 3000);
-*/
+    
+Footer
+© 2024 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact
+Manage cookies
+Do not share my personal information
