@@ -1,6 +1,6 @@
 
 
-/*const {
+const {
   default: makeWASocket,
   useMultiFileAuthState,
   Browsers,
@@ -253,7 +253,7 @@ setTimeout(() => {
 
 
 
-*/
+/*
 const {
   default: makeWASocket,
   useMultiFileAuthState,
@@ -461,3 +461,4 @@ async function Abhiy() {
 setTimeout(() => {
   Abhiy();
 }, 3000);
+*/
