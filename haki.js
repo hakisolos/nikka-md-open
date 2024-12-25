@@ -151,7 +151,7 @@ async function Abhiy() {
     try {
       conn.ev.on("creds.update", saveCreds);
 
-    /*  conn.ev.removeAllListeners("group-participants.update"); // Prevent duplicate listeners
+  /*    conn.ev.removeAllListeners("group-participants.update"); // Prevent duplicate listeners
 conn.ev.on("group-participants.update", async (data) => {
     try {
         const metadata = await conn.groupMetadata(data.id); // Fetch group metadata
@@ -207,7 +207,7 @@ conn.ev.on("group-participants.update", async (data) => {
         events.commands.map(async (command) => {
           if (
   command.fromMe &&
-  !config.SUDO.includes(msg.sender?.split(",")[0] || !msg.isSelf)
+  !config.SUDO.includes(msg.sender?.split("@")[0] || !msg.isSelf)
 )
             return;
 
