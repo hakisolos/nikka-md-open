@@ -222,7 +222,9 @@ conn.ev.on("group-participants.update", async (data) => {
           if (command.pattern && command.pattern.test(comman)) {
             var match;
             try {
-              match = text_msg.replace(new RegExp(comman, "i"), "").trim();
+              match = text_msg
+                .replace(new RegExp(`^${msg.prefix}${comman}`, "i"), "")
+                .trim();
             } catch {
               match = false;
             }
